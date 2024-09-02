@@ -9,7 +9,7 @@ class Config
         return config('payfort.language');
     }
 
-    public function isDebugMode(): bool
+    public static function isDebugMode(): bool
     {
         return (bool) config('payfort.debug_mode');
     }
