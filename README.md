@@ -1,68 +1,123 @@
-# :package_description
+# Laravel package for payfort
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/sevaske/payfort.svg?style=flat-square)](https://packagist.org/packages/sevaske/payfort)
+[![Total Downloads](https://img.shields.io/packagist/dt/sevaske/payfort.svg?style=flat-square)](https://packagist.org/packages/sevaske/payfort)
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This Laravel plugin lets you work with the Payfort Payment API and manage multiple merchants easily.
 
-## Support us
+## Requirements
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+- PHP 8.1+
+- Laravel 9+
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+composer require sevaske/payfort
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-config"
+php artisan vendor:publish --tag="payfort-config"
 ```
 
-This is the contents of the published config file:
+This is the contents of the published config file (payfort.php):
 
 ```php
 return [
+    // prod|sandbox
+    'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', true),
+    // enables debug mode for logging detailed request/response information
+    'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
+    // channel used for logging debug information
+    'log_channel' => env('PAYFORT_LOG_CHANNEL', 'stack'),
+    // language setting for the payfort api
+    'language' => env('PAYFORT_LANGUAGE', 'en'), // en|ar
+
+    // configuration for merchants
+    'merchants' => [
+        'default' => [
+            'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
+            'access_code' => env('PAYFORT_ACCESS_CODE'),
+            'sha_request_phrase' => env('PAYFORT_SHA_REQUEST_PHRASE'),
+            'sha_response_phrase' => env('PAYFORT_SHA_RESPONSE_PHRASE'),
+            'sha_type' => env('PAYFORT_SHA_TYPE', 'sha256'),
+        ],
+        'apple' => [
+            'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
+            'access_code' => env('PAYFORT_APPLE_ACCESS_CODE'),
+            'sha_request_phrase' => env('PAYFORT_APPLE_SHA_REQUEST_PHRASE'),
+            'sha_response_phrase' => env('PAYFORT_APPLE_SHA_RESPONSE_PHRASE'),
+            'sha_type' => env('PAYFORT_APPLE_SHA_TYPE', 'sha256'),
+        ],
+        // multiple merchants can be added here
+    ],
+
+    // payfort payment api urls for prod & sandbox
+    'api_url' => env('PAYFORT_API_URL', 'https://paymentservices.payfort.com/'),
+    'sandbox_api_url' => env('PAYFORT_SANDBOX_API_URL', 'https://sbpaymentservices.payfort.com/'),
 ];
 ```
 
-Optionally, you can publish the views using
+Add the following lines to your `.env` file and set values:
 
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
+```dotenv
+PAYFORT_SANDBOX_MODE=true
+PAYFORT_DEBUG_MODE=false
+PAYFORT_LOG_CHANNEL=stack
+PAYFORT_LANGUAGE=en
+# default merchant
+PAYFORT_MERCHANT_IDENTIFIER=
+PAYFORT_ACCESS_CODE=
+PAYFORT_SHA_REQUEST_PASSPHRASE=
+PAYFORT_SHA_RESPONSE_PASSPHRASE=
+PAYFORT_SHA_TYPE=sha256
+# merchant "apple"
+PAYFORT_APPLE_MERCHANT_IDENTIFIER
+PAYFORT_APPLE_ACCESS_CODE=
+PAYFORT_APPLE_SHA_REQUEST_PASSPHRASE=
+PAYFORT_APPLE_SHA_RESPONSE_PASSPHRASE=
+PAYFORT_APPLE_SHA_TYPE=sha256
 ```
 
 ## Usage
 
 ```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+use \Sevaske\Payfort\Facades\Payfort
+
+try {
+    // \Sevaske\Payfort\Services\Http\PayfortResponse
+    $response = Payfort::merchant('default')->api()->checkStatus([
+        'merchant_reference' => 12345,
+    ]);
+    
+} catch (PayfortMerchantCredentialsException $exception) {
+    // handle
+} catch (PayfortRequestException $exception) {
+    // handle
+} catch (PayfortResponseException $exception) {
+    // handle
+}
+
+// Also
+ Payfort::merchant('default')->api()->authorization([]);
+ Payfort::merchant('default')->api()->purchase([]);
+ Payfort::merchant('default')->api()->tokenization([]);
+ Payfort::merchant('default')->api()->capture([]);
+ Payfort::merchant('default')->api()->voidAuthorization([]);
+ Payfort::merchant('default')->api()->refund([]);
+ Payfort::merchant('default')->api()->recurring([]);
+
+// Custom command
+Payfort::merchant('default')->api()->command('ANOTHER', []);
+
+// custom request
+Payfort::http()->request('POST', '/FortAPI/paymentApi', []);
+// custom request with the access_code, signature and other parameters
+Payfort::merchant('default')->api()->http()->request('POST', '/FortAPI/paymentApi', []);
 ```
 
 ## Testing
@@ -71,22 +126,17 @@ echo $variable->echoPhrase('Hello, VendorName!');
 composer test
 ```
 
-## Changelog
+## Beta Version
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+**Note**: This plugin is currently in beta. This means that while it is functional and ready for use, it may still have some bugs or incomplete features. We are actively working on improvements and welcome feedback to help us enhance the plugin.
 
-## Contributing
+### What to Expect
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+- **Feature Set**: Some features might be incomplete or subject to change based on user feedback and further development.
+- **Stability**: Although we strive for stability, you may encounter issues or bugs. Please report any problems you find.
+- **Support**: We provide basic support for beta users, but responses might be slower compared to stable releases.
 
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+Thank you for trying out our beta version and helping us make it better!
 
 ## License
 
