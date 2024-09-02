@@ -120,12 +120,6 @@ Payfort::http()->request('POST', '/FortAPI/paymentApi', []);
 Payfort::merchant('default')->api()->http()->request('POST', '/FortAPI/paymentApi', []);
 ```
 
-## Testing
-
-```bash
-composer test
-```
-
 ## Beta Version
 
 **Note**: This plugin is currently in beta. This means that while it is functional and ready for use, it may still have some bugs or incomplete features. We are actively working on improvements and welcome feedback to help us enhance the plugin.
