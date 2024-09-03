@@ -2,6 +2,8 @@
 
 namespace Sevaske\Payfort;
 
+use Sevaske\Payfort\Enums\PayfortEnvironment;
+
 class Config
 {
     public static function getLanguage(): string
@@ -22,10 +24,10 @@ class Config
     public static function getApiUrl(): string
     {
         if (self::isSandboxMode()) {
-            return config('payfort.sandbox_api_url');
+            return PayfortEnvironment::Sandbox->getApiUrl();
         }
 
-        return config('payfort.api_url');
+        return PayfortEnvironment::Production->getApiUrl();
     }
 
     public static function getLogChannel(): string

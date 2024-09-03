@@ -28,8 +28,4 @@ return [
         ],
         // multiple merchants can be added here
     ],
-
-    // payfort payment api urls for prod & sandbox
-    'api_url' => env('PAYFORT_API_URL', 'https://paymentservices.payfort.com/'),
-    'sandbox_api_url' => env('PAYFORT_SANDBOX_API_URL', 'https://sbpaymentservices.payfort.com/'),
 ];
