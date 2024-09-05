@@ -12,9 +12,11 @@
         failOnRisky="true"
         failOnEmptyTestSuite="true"
         beStrictAboutOutputDuringTests="true"
+        cacheDirectory=".phpunit.cache"
+        backupStaticProperties="false"
 >
     <testsuites>
-        <testsuite name="SevaskePayfort Test Suite">
+        <testsuite name="Payfort integration">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
