@@ -79,13 +79,15 @@ PAYFORT_APPLE_SHA_TYPE=sha256
 use \Sevaske\Payfort\Exceptions\PayfortMerchantCredentialsException;
 use \Sevaske\Payfort\Exceptions\PayfortRequestException;
 use \Sevaske\Payfort\Exceptions\PayfortResponseException;
-use \Sevaske\Payfort\Facades\Payfort;
+use \Sevaske\Payfort\Http\PayfortSignature;
+use \Sevaske\Payfort\Http\PayfortResponse;
+use \Sevaske\Payfort\Payfort;
 
 try {
     $response = Payfort::merchant('default')
         ->api()
-        ->checkStatus(merchantReference: 'ORDER-123456'); // \Sevaske\Payfort\Http\PayfortResponse
-    $response->getData(); // array
+        ->checkStatus(merchantReference: 'ORDER-123456') // PayfortResponse
+        ->getData(); // array
 } catch (PayfortMerchantCredentialsException $exception) {
     // handle
 } catch (PayfortRequestException $exception) {
@@ -107,7 +109,7 @@ try {
 Payfort::http()->request('POST', '/FortAPI/paymentApi', []);
 
 // signature
-$signature = (new \Sevaske\Payfort\Http\PayfortSignature(shaPhrase: '', shaType: 'sha256'))
+$signature = (new PayfortSignature(shaPhrase: '', shaType: 'sha256'))
     ->calculateSignature([]);
 
 ```
