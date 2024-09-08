@@ -1,12 +1,14 @@
 <?php
 
-namespace Sevaske\Payfort\Services\Merchant;
+namespace Sevaske\Payfort\Managers;
 
+use Illuminate\Support\Manager;
+use Sevaske\Payfort\Credentials;
 use Sevaske\Payfort\Exceptions\PayfortMerchantCredentialsException;
-use Sevaske\Payfort\Services\Http\PayfortHttpClient;
+use Sevaske\Payfort\Merchant;
 use Throwable;
 
-class PayfortMerchantManager extends \Illuminate\Support\Manager
+class MerchantManager extends Manager
 {
     public function getDefaultDriver(): string
     {
@@ -16,7 +18,7 @@ class PayfortMerchantManager extends \Illuminate\Support\Manager
     /**
      * @throws PayfortMerchantCredentialsException
      */
-    public function createDriver($driver): PayfortMerchant
+    public function createDriver($driver): Merchant
     {
         $config = $this->config['payfort']['merchants'][$driver] ?? [];
 
@@ -26,18 +28,20 @@ class PayfortMerchantManager extends \Illuminate\Support\Manager
         }
 
         try {
-            $credentials = new PayfortCredentials(
+            $credentials = new Credentials(
                 merchantIdentifier: $config['merchant_identifier'],
                 accessToken: $config['access_code'],
                 shaRequestPhrase: $config['sha_request_phrase'],
                 shaResponsePhrase: $config['sha_response_phrase'],
                 shaType: $config['sha_type'] ?? 'sha256',
             );
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // invalid
-            throw new PayfortMerchantCredentialsException("Credentials for merchant [{$driver}] are invalid.");
+            throw new PayfortMerchantCredentialsException(
+                message: "Credentials for merchant [{$driver}] are invalid. {$e->getMessage()}"
+            );
         }
 
-        return new PayfortMerchant(app(PayfortHttpClient::class), $credentials);
+        return new Merchant($credentials);
     }
 }

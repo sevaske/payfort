@@ -1,8 +1,10 @@
 <?php
 
-namespace Sevaske\Payfort\Services\Merchant;
+namespace Sevaske\Payfort;
 
-class PayfortCredentials
+use Sevaske\Payfort\Contracts\CredentialsContract;
+
+class Credentials implements CredentialsContract
 {
     public function __construct(
         protected string $merchantIdentifier,

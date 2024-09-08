@@ -1,6 +1,6 @@
 <?php
 
-namespace Sevaske\Payfort\Services\Http;
+namespace Sevaske\Payfort\Http;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;

@@ -2,9 +2,8 @@
 
 namespace Sevaske\Payfort;
 
-use Sevaske\Payfort\Services\Http\PayfortHttpClient;
-use Sevaske\Payfort\Services\Merchant\PayfortMerchant;
-use Sevaske\Payfort\Services\Merchant\PayfortMerchantManager;
+use Sevaske\Payfort\Http\PayfortHttpClient;
+use Sevaske\Payfort\Managers\MerchantManager;
 
 class Payfort
 {
@@ -13,13 +12,13 @@ class Payfort
         return app(PayfortHttpClient::class);
     }
 
-    public function merchantManager(): PayfortMerchantManager
+    public function merchants(): MerchantManager
     {
-        return app(PayfortMerchantManager::class);
+        return app(MerchantManager::class);
     }
 
-    public function merchant(string $name = 'default'): PayfortMerchant
+    public function merchant(string $name = 'default'): Merchant
     {
-        return $this->merchantManager()->driver($name);
+        return $this->merchants()->driver($name);
     }
 }

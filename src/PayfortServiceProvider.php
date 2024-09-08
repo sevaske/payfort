@@ -2,8 +2,8 @@
 
 namespace Sevaske\Payfort;
 
-use Sevaske\Payfort\Services\Http\PayfortHttpClient;
-use Sevaske\Payfort\Services\Merchant\PayfortMerchantManager;
+use Sevaske\Payfort\Http\PayfortHttpClient;
+use Sevaske\Payfort\Managers\MerchantManager;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -26,8 +26,8 @@ class PayfortServiceProvider extends PackageServiceProvider
         });
 
         // merchants
-        $this->app->singleton(PayfortMerchantManager::class, function ($app) {
-            return new PayfortMerchantManager($app, $app['config']->get('payfort'));
+        $this->app->singleton(MerchantManager::class, function ($app) {
+            return new MerchantManager($app, $app['config']->get('payfort'));
         });
 
         // main class

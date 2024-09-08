@@ -8,7 +8,7 @@ This Laravel plugin lets you work with the Payfort Payment API and manage multip
 ## Requirements
 
 - PHP 8.1+
-- Laravel 9+
+- Laravel 10+
 
 ## Installation
 
@@ -28,16 +28,10 @@ This is the contents of the published config file (payfort.php):
 
 ```php
 return [
-    // prod|sandbox
     'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', true),
-    // enables debug mode for logging detailed request/response information
-    'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
-    // channel used for logging debug information
     'log_channel' => env('PAYFORT_LOG_CHANNEL', 'stack'),
-    // language setting for the payfort api
+    'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
     'language' => env('PAYFORT_LANGUAGE', 'en'), // en|ar
-
-    // configuration for merchants
     'merchants' => [
         'default' => [
             'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
@@ -47,7 +41,7 @@ return [
             'sha_type' => env('PAYFORT_SHA_TYPE', 'sha256'),
         ],
         'apple' => [
-            'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
+            'merchant_identifier' => env('PAYFORT_APPLE_MERCHANT_IDENTIFIER'),
             'access_code' => env('PAYFORT_APPLE_ACCESS_CODE'),
             'sha_request_phrase' => env('PAYFORT_APPLE_SHA_REQUEST_PHRASE'),
             'sha_response_phrase' => env('PAYFORT_APPLE_SHA_RESPONSE_PHRASE'),
@@ -55,10 +49,6 @@ return [
         ],
         // multiple merchants can be added here
     ],
-
-    // payfort payment api urls for prod & sandbox
-    'api_url' => env('PAYFORT_API_URL', 'https://paymentservices.payfort.com/'),
-    'sandbox_api_url' => env('PAYFORT_SANDBOX_API_URL', 'https://sbpaymentservices.payfort.com/'),
 ];
 ```
 
@@ -86,14 +76,16 @@ PAYFORT_APPLE_SHA_TYPE=sha256
 ## Usage
 
 ```php
-use \Sevaske\Payfort\Facades\Payfort
+use \Sevaske\Payfort\Exceptions\PayfortMerchantCredentialsException;
+use \Sevaske\Payfort\Exceptions\PayfortRequestException;
+use \Sevaske\Payfort\Exceptions\PayfortResponseException;
+use \Sevaske\Payfort\Facades\Payfort;
 
 try {
-    // \Sevaske\Payfort\Services\Http\PayfortResponse
-    $response = Payfort::merchant('default')->api()->checkStatus([
-        'merchant_reference' => 12345,
-    ]);
-    
+    $response = Payfort::merchant('default')
+        ->api()
+        ->checkStatus(merchantReference: 'ORDER-123456'); // \Sevaske\Payfort\Http\PayfortResponse
+    $response->getData(); // array
 } catch (PayfortMerchantCredentialsException $exception) {
     // handle
 } catch (PayfortRequestException $exception) {
@@ -102,23 +94,31 @@ try {
     // handle
 }
 
-// Also
- Payfort::merchant('default')->api()->authorization([]);
- Payfort::merchant('default')->api()->purchase([]);
- Payfort::merchant('default')->api()->tokenization([]);
- Payfort::merchant('default')->api()->capture([]);
- Payfort::merchant('default')->api()->voidAuthorization([]);
- Payfort::merchant('default')->api()->refund([]);
- Payfort::merchant('default')->api()->recurring([]);
-
-// Custom command
-Payfort::merchant('default')->api()->command('ANOTHER', []);
+// also
+ Payfort::merchant('default')->api()->capture();
+ Payfort::merchant('default')->api()->checkStatus();
+ Payfort::merchant('default')->api()->createToken();
+ Payfort::merchant('default')->api()->recurring();
+ Payfort::merchant('default')->api()->refund();
+ Payfort::merchant('default')->api()->updateToken();
+ Payfort::merchant('default')->api()->voidAuthorization();
 
 // custom request
 Payfort::http()->request('POST', '/FortAPI/paymentApi', []);
-// custom request with the access_code, signature and other parameters
-Payfort::merchant('default')->api()->http()->request('POST', '/FortAPI/paymentApi', []);
+
+// signature
+$signature = (new \Sevaske\Payfort\Http\PayfortSignature(shaPhrase: '', shaType: 'sha256'))
+    ->calculateSignature([]);
+
 ```
+
+### Multiple merchants
+
+Add new merchants in config/payfort.php.
+
+### Debug mode
+
+Enables debug mode for logging detailed request/response information. You can set the "log_channel".
 
 ## Beta Version
 

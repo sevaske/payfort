@@ -10,10 +10,6 @@ enum PaymentCommand: string
 
     case Tokenization = 'TOKENIZATION';
 
-    case CreateToken = 'CREATE_TOKEN';
-
-    case UpdateToken = 'UPDATE_TOKEN';
-
     case Capture = 'CAPTURE';
 
     case VoidAuthorization = 'VOID_AUTHORIZATION';
@@ -23,4 +19,8 @@ enum PaymentCommand: string
     case CheckStatus = 'CHECK_STATUS';
 
     case Recurring = 'RECURRING';
+
+    case CreateToken = 'CREATE_TOKEN';
+
+    case UpdateToken = 'UPDATE_TOKEN';
 }
