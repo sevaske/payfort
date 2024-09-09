@@ -2,6 +2,4 @@
 
 namespace Sevaske\Payfort\Exceptions;
 
-use Exception;
-
-class PayfortResponseException extends Exception {}
+class PayfortResponseException extends PayfortException {}
