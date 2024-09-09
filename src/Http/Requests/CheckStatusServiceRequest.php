@@ -26,7 +26,7 @@ class CheckStatusServiceRequest extends AbstractServiceRequest
                 'in:CHECK_STATUS',
             ],
             'merchant_reference' => [ // Alphanumeric, Mandatory, Max 40, Special characters: - _ .
-                'regex:/^[A-Za-z0-9\-_\.]+$/',
+                'regex:/^[A-Za-z0-9_\.\-]+$/',
                 'max:40',
                 'required_without:fort_id',
             ],

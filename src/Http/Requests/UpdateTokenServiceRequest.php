@@ -27,12 +27,12 @@ class UpdateTokenServiceRequest extends AbstractServiceRequest
             ],
             'merchant_reference' => [
                 'required',
-                'regex:/^[A-Za-z0-9._-]+$/',
+                'regex:/^[A-Za-z0-9_\.\-]+$/',
                 'max:40',
             ],
             'token_name' => [ // Alphanumeric, Optional, Max: 100, Special characters: . @ - _
                 'required',
-                'regex:/^[A-Za-z0-9.@-_]+$/',
+                'regex:/^[A-Za-z0-9.@\-_]+$/',
                 'max:100',
             ],
             'card_holder_name' => [ // Alpha, Optional, Max: 50, Special characters: ' - .
@@ -47,7 +47,7 @@ class UpdateTokenServiceRequest extends AbstractServiceRequest
                 'in:ACTIVE,INACTIVE',
             ],
             'new_token_name' => [
-                'regex:/^[A-Za-z0-9.@-_]+$/',
+                'regex:/^[A-Za-z0-9.@\-_]+$/',
                 'max:100',
             ],
         ];

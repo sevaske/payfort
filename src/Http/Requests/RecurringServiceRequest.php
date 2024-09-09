@@ -29,7 +29,7 @@ class RecurringServiceRequest extends AbstractServiceRequest
             ],
             'merchant_reference' => [ // Alphanumeric, Mandatory, Max 40, Special characters: - _ .
                 'required',
-                'regex:/^[A-Za-z0-9\-_\.]+$/',
+                'regex:/^[A-Za-z0-9_\.\-]+$/',
                 'max:40',
             ],
             'amount' => [ // Numeric, Mandatory, Max 10
@@ -42,7 +42,6 @@ class RecurringServiceRequest extends AbstractServiceRequest
                 'alpha',
                 'max:3',
             ],
-
             'customer_email' => [ // Alphanumeric, Mandatory, Max: 254, Special characters: _ - . @ +
                 'required',
                 'email',
@@ -54,18 +53,18 @@ class RecurringServiceRequest extends AbstractServiceRequest
             ],
             'token_name' => [ // Alphanumeric, Mandatory, Max: 100, Special characters: _ - . @
                 'required',
-                'regex:/^[A-Za-z0-9_\-\.@]+$/',
+                'regex:/^[A-Za-z0-9.@\-_]+$/',
                 'max:100',
             ],
             'payment_option' => [ // Alpha, Optional, Max: 10
                 'in:MASTERCARD,VISA,AMEX',
             ],
             'order_description' => [ // Alphanumeric, Optional, Max: 150, Special characters: ' / . _ - # : $ Space
-                'regex:/^[A-Za-z0-9\'\/\.\-_#:\$ ]+$/',
+                'regex:/^[A-Za-z0-9\/._#:$ \-]+$/',
                 'max:150',
             ],
             'customer_name' => [ // Alpha, Optional, Max: 40, Special characters: _ \ / - . ' Space
-                'regex:/^[A-Za-z_\\\/\-.\' ]+$/',
+                'regex:/^[A-Za-z_\\\/\-\.\' ]+$/',
                 'max:40',
             ],
             'merchant_extra' => [ // Alphanumeric, Optional, Max: 999, Special characters: . ; / _ - , ' @

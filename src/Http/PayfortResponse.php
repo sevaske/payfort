@@ -21,7 +21,7 @@ class PayfortResponse
     {
         try {
             $this->parseResponse();
-            $this->validateResponse();
+            $this->checkSignature();
         } catch (JsonException $e) {
             throw new PayfortResponseException("Cannot encode response: {$e->getMessage()}", $e->getCode());
         }
@@ -43,16 +43,6 @@ class PayfortResponse
     public function getResponse(): ResponseInterface
     {
         return $this->response;
-    }
-
-    /**
-     * @throws PayfortRequestException
-     * @throws PayfortResponseException
-     */
-    protected function validateResponse(): void
-    {
-        $this->checkStatus();
-        $this->checkSignature();
     }
 
     /**

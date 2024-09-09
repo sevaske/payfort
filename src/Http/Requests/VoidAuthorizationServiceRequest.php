@@ -26,7 +26,7 @@ class VoidAuthorizationServiceRequest extends AbstractServiceRequest
                 'in:VOID_AUTHORIZATION',
             ],
             'merchant_reference' => [ // Alphanumeric with special chars '- _ .', Mandatory, Max 40
-                'regex:/^[A-Za-z0-9._-]+$/',
+                'regex:/^[A-Za-z0-9_\.\-]+$/',
                 'max:40',
                 'required_without:fort_id',
             ],
@@ -36,7 +36,7 @@ class VoidAuthorizationServiceRequest extends AbstractServiceRequest
                 'required_without:merchant_reference',
             ],
             'order_description' => [ // Alphanumeric with special chars ' / . _ - # : $, Optional, Max 150
-                'regex:/^[A-Za-z0-9\/._\-#:$ ]+$/',
+                'regex:/^[A-Za-z0-9\/._#:$ \-]+$/',
                 'max:150',
             ],
         ];
