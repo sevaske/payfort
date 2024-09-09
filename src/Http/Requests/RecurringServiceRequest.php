@@ -3,6 +3,7 @@
 namespace Sevaske\Payfort\Http\Requests;
 
 use Sevaske\Payfort\Enums\PaymentCommand;
+use Sevaske\Payfort\Enums\PaymentEci;
 
 /**
  * https://paymentservices-reference.payfort.com/docs/api/build/index.html#recurring-request
@@ -12,8 +13,8 @@ class RecurringServiceRequest extends AbstractServiceRequest
     public function getPreparedRequestData(): array
     {
         return [
-            'command' => PaymentCommand::Recurring->value,
-            'eci' => 'RECURRING',
+            'command' => PaymentCommand::Purchase->value,
+            'eci' => PaymentEci::Recurring->value,
         ];
     }
 

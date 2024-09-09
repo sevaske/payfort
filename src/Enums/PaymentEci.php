@@ -4,9 +4,9 @@ namespace Sevaske\Payfort\Enums;
 
 enum PaymentEci: string
 {
-    case PaymentEciMoto = 'MOTO';
+    case Moto = 'MOTO';
 
-    case PaymentEciRecurring = 'RECURRING';
+    case Recurring = 'RECURRING';
 
-    case PaymentEciEcommerce = 'ECOMMERCE';
+    case Ecommerce = 'ECOMMERCE';
 }
