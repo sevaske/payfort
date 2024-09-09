@@ -47,7 +47,13 @@ class PayfortHttpClient
 
             return $response;
         } catch (GuzzleException $e) {
-            throw new PayfortRequestException($e->getMessage(), $e->getCode());
+            throw (new PayfortRequestException('Error during Payfort request', $e->getCode(), $e))
+                ->withContext([
+                    'method' => $method,
+                    'uri' => $uri,
+                    'options' => $options,
+                    'error_message' => $e->getMessage(),
+                ]);
         }
     }
 }

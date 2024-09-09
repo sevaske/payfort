@@ -5,8 +5,6 @@ namespace Sevaske\Payfort\Http;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Sevaske\Payfort\Credentials;
-use Sevaske\Payfort\Enums\PaymentApiResponseStatus;
-use Sevaske\Payfort\Exceptions\PayfortRequestException;
 use Sevaske\Payfort\Exceptions\PayfortResponseException;
 
 class PayfortResponse
@@ -15,24 +13,32 @@ class PayfortResponse
 
     /**
      * @throws PayfortResponseException
-     * @throws PayfortRequestException
      */
     public function __construct(private readonly ResponseInterface $response, protected ?Credentials $credentials)
     {
-        try {
-            $this->parseResponse();
-            $this->checkSignature();
-        } catch (JsonException $e) {
-            throw new PayfortResponseException("Cannot encode response: {$e->getMessage()}", $e->getCode());
-        }
+        $this->parseResponse();
+        $this->checkSignature();
     }
 
     /**
-     * @throws JsonException
+     * @throws PayfortResponseException
      */
     protected function parseResponse(): void
     {
-        $this->data = (array) json_decode($this->response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $this->data = (array) json_decode(
+                $this->response->getBody()->getContents(),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        } catch (JsonException $e) {
+            throw (new PayfortResponseException('Cannot decode payfort response.', $e->getCode(), $e))
+                ->withContext([
+                    'content' => $this->response->getBody()->getContents(),
+                    'status' => $this->response->getStatusCode(),
+                ]);
+        }
     }
 
     public function getData(): array
@@ -43,22 +49,6 @@ class PayfortResponse
     public function getResponse(): ResponseInterface
     {
         return $this->response;
-    }
-
-    /**
-     * @throws PayfortRequestException
-     */
-    protected function checkStatus(): void
-    {
-        $status = $this->data['status'] ?? null;
-
-        if (! $status) {
-            return;
-        }
-
-        if ($status === PaymentApiResponseStatus::InvalidRequest->value) {
-            throw new PayfortRequestException('Invalid request.');
-        }
     }
 
     /**
