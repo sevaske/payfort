@@ -21,6 +21,11 @@ class Config
         return (bool) config('payfort.sandbox_mode');
     }
 
+    public static function isValidationRequestsEnabled(): bool
+    {
+        return (bool) config('payfort.enable_requests_validation');
+    }
+
     public static function getApiUrl(): string
     {
         if (self::isSandboxMode()) {

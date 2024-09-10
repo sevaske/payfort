@@ -4,6 +4,7 @@ namespace Sevaske\Payfort\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Sevaske\Payfort\Config;
 use Sevaske\Payfort\Contracts\ServiceRequestContract;
 use Sevaske\Payfort\Credentials;
 use Sevaske\Payfort\Exceptions\PayfortRequestException;
@@ -185,11 +186,17 @@ class ApiServices
         ]]);
 
         // validate prepared request
-        if ($rules = $service->rules()) {
+        if (Config::isValidationRequestsEnabled() && $rules = $service->rules()) {
             try {
                 Validator::validate($request->getOptions()['json'], $rules);
             } catch (ValidationException $e) {
-                throw new PayfortRequestException('Validation failed: '.$e->getMessage());
+                throw (new PayfortRequestException('Validation failed: '.$e->getMessage(), $e->getCode(), $e))
+                    ->withContext([
+                        'service' => $service::class,
+                        'data' => $data,
+                        'rules' => $rules,
+                        'errors' => $e->errors(),
+                    ]);
             }
         }
 

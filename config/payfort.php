@@ -5,6 +5,7 @@ return [
     'log_channel' => env('PAYFORT_LOG_CHANNEL', 'stack'),
     'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
     'language' => env('PAYFORT_LANGUAGE', 'en'), // en|ar
+    'enable_requests_validation' => env('PAYFORT_ENABLE_REQUESTS_VALIDATION', true),
     'merchants' => [
         'default' => [
             'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
