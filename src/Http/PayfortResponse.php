@@ -2,7 +2,6 @@
 
 namespace Sevaske\Payfort\Http;
 
-use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Sevaske\Payfort\Credentials;
 use Sevaske\Payfort\Exceptions\PayfortResponseException;
@@ -20,25 +19,9 @@ class PayfortResponse
         $this->checkSignature();
     }
 
-    /**
-     * @throws PayfortResponseException
-     */
     protected function parseResponse(): void
     {
-        try {
-            $this->data = (array) json_decode(
-                $this->response->getBody()->getContents(),
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
-        } catch (JsonException $e) {
-            throw (new PayfortResponseException('Cannot decode payfort response.', $e->getCode(), $e))
-                ->withContext([
-                    'content' => $this->response->getBody()->getContents(),
-                    'status' => $this->response->getStatusCode(),
-                ]);
-        }
+        $this->data = (array) json_decode($this->response->getBody(), true);
     }
 
     public function getData(): array
