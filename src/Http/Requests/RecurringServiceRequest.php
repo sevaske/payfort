@@ -29,7 +29,7 @@ class RecurringServiceRequest extends AbstractServiceRequest
             ],
             'merchant_reference' => [ // Alphanumeric, Mandatory, Max 40, Special characters: - _ .
                 'required',
-                'regex:/^[A-Za-z0-9_\.\-]+$/',
+                'string',
                 'max:40',
             ],
             'amount' => [ // Numeric, Mandatory, Max 10
@@ -53,49 +53,50 @@ class RecurringServiceRequest extends AbstractServiceRequest
             ],
             'token_name' => [ // Alphanumeric, Mandatory, Max: 100, Special characters: _ - . @
                 'required',
-                'regex:/^[A-Za-z0-9.@\-_]+$/',
+                'string',
                 'max:100',
             ],
             'payment_option' => [ // Alpha, Optional, Max: 10
                 'in:MASTERCARD,VISA,AMEX',
             ],
             'order_description' => [ // Alphanumeric, Optional, Max: 150, Special characters: ' / . _ - # : $ Space
-                'regex:/^[A-Za-z0-9\/._#:$ \-]+$/',
+                'string',
                 'max:150',
             ],
             'customer_name' => [ // Alpha, Optional, Max: 40, Special characters: _ \ / - . ' Space
-                'regex:/^[A-Za-z_\\\/\-\.\' ]+$/',
+                'string',
                 'max:40',
             ],
             'merchant_extra' => [ // Alphanumeric, Optional, Max: 999, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:999',
             ],
             'merchant_extra1' => [ // Alphanumeric, Optional, Max: 250, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:250',
             ],
             'merchant_extra2' => [ // Alphanumeric, Optional, Max: 250, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:250',
             ],
             'merchant_extra3' => [ // Alphanumeric, Optional, Max: 250, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:250',
             ],
             'merchant_extra4' => [ // Alphanumeric, Optional, Max: 250, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:250',
             ],
             'merchant_extra5' => [ // Alphanumeric, Optional, Max: 250, Special characters: . ; / _ - , ' @
-                'regex:/^[A-Za-z0-9.;/_\-,\'@ ]+$/',
+                'string',
                 'max:250',
             ],
             'phone_number' => [ // Alphanumeric, Optional, Max: 19, Special characters: + - ( ) Space
-                'regex:/^[A-Za-z0-9+\-() ]+$/',
+                'string',
                 'max:19',
             ],
             'settlement_reference' => [ // Alphanumeric, Optional, Max: 22
+                'string',
                 'max:22',
             ],
             'agreement_id' => [ // Alphanumeric, Optional, Max: 15, No special characters

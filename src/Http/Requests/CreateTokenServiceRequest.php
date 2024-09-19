@@ -27,7 +27,7 @@ class CreateTokenServiceRequest extends AbstractServiceRequest
             ],
             'merchant_reference' => [
                 'required',
-                'regex:/^[A-Za-z0-9._-]+$/',
+                'string',
                 'max:40',
             ],
             'card_number' => [ // Numeric, Mandatory, Max: 19
@@ -42,7 +42,7 @@ class CreateTokenServiceRequest extends AbstractServiceRequest
             ],
             'return_url' => [ // Alphanumeric, Mandatory, Max: 400, Special characters: $ ! = ? # & - _ / : .
                 'required',
-                'regex:/^[A-Za-z0-9$!=?#&\-_/:.]+$/',
+                'string',
                 'max:400',
             ],
             'currency' => [ // Alpha, Optional, Max: 3
@@ -50,11 +50,11 @@ class CreateTokenServiceRequest extends AbstractServiceRequest
                 'max:3', // ISO code 3
             ],
             'token_name' => [ // Alphanumeric, Optional, Max: 100, Special characters: . @ - _
-                'regex:/^[A-Za-z0-9.@\-_]+$/',
+                'string',
                 'max:100',
             ],
             'card_holder_name' => [ // Alpha, Optional, Max: 50, Special characters: ' - .
-                "regex:/^[A-Za-z\s\'\-\.\s]+$/",
+                'string',
                 'max:50',
             ],
         ];

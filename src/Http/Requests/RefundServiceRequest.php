@@ -36,7 +36,7 @@ class RefundServiceRequest extends AbstractServiceRequest
                 'max:3',
             ],
             'merchant_reference' => [ // Alphanumeric with special chars '- _ .', Mandatory, Max 40
-                'regex:/^[A-Za-z0-9_\.\-]+$/',
+                'string',
                 'max:40',
                 'required_without:fort_id',
             ],
@@ -46,11 +46,11 @@ class RefundServiceRequest extends AbstractServiceRequest
                 'required_without:merchant_reference',
             ],
             'maintenance_reference' => [ // Alphanumeric with special chars ' / . _ - # : $, Optional, Max 150
-                'alpha_num',
+                'string',
                 'max:200',
             ],
             'order_description' => [ // Alphanumeric with special chars ' / . _ - # : $, Optional, Max 150
-                'regex:/^[A-Za-z0-9\/._#:$ \-]+$/',
+                'string',
                 'max:150',
             ],
         ];
