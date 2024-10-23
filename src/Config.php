@@ -39,4 +39,34 @@ class Config
     {
         return config('payfort.log_channel');
     }
+
+    public static function isWebhookFeedbackEnabled(): bool
+    {
+        return (bool) config('payfort.webhook.feedback.enabled');
+    }
+
+    public static function getWebhookFeedbackUri(): string
+    {
+        return config('payfort.webhook.feedback.uri');
+    }
+
+    public static function getWebhookFeedbackMiddlewares(): array
+    {
+        return config('payfort.webhook.feedback.middlewares');
+    }
+
+    public static function isWebhookNotificationEnabled(): bool
+    {
+        return (bool) config('payfort.webhook.notification.enabled');
+    }
+
+    public static function getWebhookNotificationUri(): string
+    {
+        return config('payfort.webhook.notification.uri');
+    }
+
+    public static function getWebhookNotificationMiddlewares(): array
+    {
+        return config('payfort.webhook.notification.middlewares');
+    }
 }

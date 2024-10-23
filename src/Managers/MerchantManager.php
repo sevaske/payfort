@@ -42,6 +42,6 @@ class MerchantManager extends Manager
             );
         }
 
-        return new Merchant($credentials);
+        return new Merchant($driver, $credentials);
     }
 }

@@ -10,7 +10,12 @@ class Merchant implements HasCredentials
 {
     private ?ApiServices $api = null;
 
-    public function __construct(protected CredentialsContract $credentials) {}
+    public function __construct(protected string $name, protected CredentialsContract $credentials) {}
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     public function getCredentials(): CredentialsContract
     {
