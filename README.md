@@ -5,6 +5,10 @@
 
 This Laravel plugin lets you work with the Payfort Payment API and manage multiple merchants easily.
 
+# Beta version
+
+**Note**: This plugin is currently in beta. This means that while it is functional and ready for use, it may still have some bugs or incomplete features. We are actively working on improvements and welcome feedback to help us enhance the plugin.
+
 ## Requirements
 
 - PHP 8.1+
@@ -113,6 +117,10 @@ PAYFORT_APPLE_SHA_REQUEST_PHRASE=
 PAYFORT_APPLE_SHA_RESPONSE_PHRASE=
 ```
 
+## Multiple merchants
+
+You can add new merchants in config/payfort.php.
+
 ## Usage
 
 ```php
@@ -151,7 +159,7 @@ try {
 // custom request using merchant credentials
 Payfort::merchant()->api()->request(options: ['json' => [
     'query_command' => 'CHECK_STATUS',
-    'merchant_reference' => '5000900',
+    'merchant_reference' => 'ORDER-123456',
 ]]); // PayfortResponse
 
 // custom request
@@ -164,19 +172,60 @@ $signature = (new PayfortSignature(shaPhrase: '', shaType: 'sha256'))
 
 ```
 
-### Multiple merchants
+## Webhook events
 
-Add new merchants in config/payfort.php.
+This package triggers events that allow developers to handle Payfort webhook data according to their application logic. The events provide all necessary data from the webhook requests, enabling customized handling of feedback and notification events.
 
-### Debug mode
+### Available events
+
+- **`PayfortFeedbackReceived`**  
+  Triggered when feedback data is received from Payfort. This event provides access to the Payfort merchant and data from the webhook request.
+
+- **`PayfortNotificationReceived`**  
+  Triggered when a notification is received from Payfort. It also includes the Payfort merchant and webhook data.
+
+### Event data
+
+Each event includes:
+- `merchant`: An instance of `PayfortMerchant` containing merchant-specific information.
+- `postData`: The `POST` data sent by Payfort in the webhook.
+- `queryData`: The query parameters provided in the webhook request URL.
+
+### Setting up event listeners
+
+To handle these events, you need to create listeners in your application and register them in your `EventServiceProvider`.
+
+#### 1. Create a listener
+
+Create a custom listener to handle `PayfortFeedbackReceived`:
+
+```php
+<?php
+
+namespace App\Listeners;
+
+use Sevaske\Payfort\Events\PayfortFeedbackReceived;
+
+class HandlePayfortFeedback
+{
+    public function handle(PayfortFeedbackReceived $event)
+    {
+        // Access event data
+        $merchant = $event->merchant;
+        $postData = $event->postData;
+        $queryData = $event->queryData;
+
+        // Custom logic for handling feedback webhook data
+        // For example, logging data or updating the database
+    }
+}
+```
+
+## Debug mode
 
 Enables debug mode for logging detailed request/response information. You can set the "log_channel".
 
-## Beta Version
-
-**Note**: This plugin is currently in beta. This means that while it is functional and ready for use, it may still have some bugs or incomplete features. We are actively working on improvements and welcome feedback to help us enhance the plugin.
-
-### What to Expect
+## What to expect
 
 - **Feature Set**: Some features might be incomplete or subject to change based on user feedback and further development.
 - **Stability**: Although we strive for stability, you may encounter issues or bugs. Please report any problems you find.
