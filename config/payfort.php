@@ -51,6 +51,7 @@ return [
     |
     */
     'webhook' => [
+        'controller' => Sevaske\Payfort\Http\Controllers\PayfortWebhookController::class,
         'feedback' => [
             'enabled' => env('PAYFORT_WEBHOOK_FEEDBACK_ENABLED', true),
             'uri' => env('PAYFORT_WEBHOOK_FEEDBACK_URI', '/payfort/webhook/feedback/{merchant?}'),

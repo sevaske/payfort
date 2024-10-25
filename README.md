@@ -187,9 +187,9 @@ This package triggers events that allow developers to handle Payfort webhook dat
 ### Event data
 
 Each event includes:
-- `merchant`: An instance of `PayfortMerchant` containing merchant-specific information.
-- `payload`: The `POST` data sent by Payfort in the webhook.
-- `query`: The query parameters provided in the webhook request URL.
+- `getMerchantName()`: The merchant name.
+- `getPayload()`: The `POST` data sent by Payfort in the webhook.
+- `getMerchant()`: An instance of `Merchant` containing merchant-specific information.
 
 ### Setting up event listeners
 
@@ -204,19 +204,48 @@ Create a custom listener to handle `PayfortFeedbackReceived`:
 
 namespace App\Listeners;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Sevaske\Payfort\Events\PayfortFeedbackReceived;
 
-class HandlePayfortFeedback
+class HandlePayfortFeedback implements ShouldQueue
 {
     public function handle(PayfortFeedbackReceived $event)
     {
         // Access event data
-        $merchant = $event->merchant;
-        $postData = $event->payload;
-        $queryData = $event->query;
+        $event->getMerchantName(); // string
+        $event->getPayload() // request data
+        $event->getMerchant(); // Sevaske\Payfort\Merchant
 
         // Custom logic for handling feedback webhook data
         // For example, logging data or updating the database
+    }
+}
+```
+
+#### 2. Register the listener
+
+In your `EventServiceProvider`, map the event to the listener:
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Sevaske\Payfort\Events\PayfortFeedbackReceived;
+use App\Listeners\HandlePayfortFeedback;
+
+class EventServiceProvider extends ServiceProvider
+{
+    protected $listen = [
+        PayfortFeedbackReceived::class => [
+            HandlePayfortFeedback::class,
+        ],
+    ];
+
+    public function boot()
+    {
+        parent::boot();
     }
 }
 ```

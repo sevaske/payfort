@@ -40,6 +40,11 @@ class Config
         return config('payfort.log_channel');
     }
 
+    public static function getWebhookController()
+    {
+        return config('payfort.webhook.controller');
+    }
+
     public static function isWebhookFeedbackEnabled(): bool
     {
         return (bool) config('payfort.webhook.feedback.enabled');
