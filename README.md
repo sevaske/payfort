@@ -28,11 +28,25 @@ This is the contents of the published config file (payfort.php):
 
 ```php
 return [
-    'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', true),
-    'log_channel' => env('PAYFORT_LOG_CHANNEL', 'stack'),
+    'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', false),
     'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
+    'log_channel' => env('PAYFORT_LOG_CHANNEL', env('LOG_CHANNEL', 'stack')),
     'language' => env('PAYFORT_LANGUAGE', 'en'), // en|ar
     'enable_requests_validation' => env('PAYFORT_ENABLE_REQUESTS_VALIDATION', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Merchant Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This section allows you to configure multiple merchants for your application.
+    | Each merchant can have its own unique settings, such as merchant identifier,
+    | access code, and SHA phrases for secure transactions. You can easily
+    | switch between different merchants using the Payfort::merchant({name}) method.
+    | The default merchant is specified under 'default', while additional merchants
+    | can be defined by adding their own unique keys.
+    |
+    */
     'merchants' => [
         'default' => [
             'merchant_identifier' => env('PAYFORT_MERCHANT_IDENTIFIER'),
@@ -48,7 +62,36 @@ return [
             'sha_response_phrase' => env('PAYFORT_APPLE_SHA_RESPONSE_PHRASE'),
             'sha_type' => env('PAYFORT_APPLE_SHA_TYPE', 'sha256'),
         ],
-        // multiple merchants can be added here
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you can configure webhooks for your application. These settings
+    | define where your server will receive responses from Amazon Payment
+    | Services after a transaction is processed, as well as where offline
+    | notifications will be received for any status updates regarding
+    | transactions and orders. You can also specify the middleware that
+    | should be applied to the webhook routes.
+    |
+    */
+    'webhook' => [
+        'feedback' => [
+            'enabled' => env('PAYFORT_WEBHOOK_FEEDBACK_ENABLED', true),
+            'uri' => env('PAYFORT_WEBHOOK_FEEDBACK_URI', '/payfort/webhook/feedback/{merchant?}'),
+            'middlewares' => [
+                \Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature::class,
+            ],
+        ],
+        'notification' => [
+            'enabled' => env('PAYFORT_WEBHOOK_NOTIFICATION_ENABLED', true),
+            'uri' => env('PAYFORT_WEBHOOK_NOTIFICATION_URI', '/payfort/webhook/notification/{merchant?}'),
+            'middlewares' => [
+                \Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature::class,
+            ],
+        ],
     ],
 ];
 ```
@@ -57,21 +100,17 @@ Add the following lines to your `.env` file and set values:
 
 ```dotenv
 PAYFORT_SANDBOX_MODE=true
-PAYFORT_DEBUG_MODE=false
-PAYFORT_LOG_CHANNEL=stack
-PAYFORT_LANGUAGE=en
-# default merchant
+PAYFORT_DEBUG_MODE=true
+# merchant: default
 PAYFORT_MERCHANT_IDENTIFIER=
 PAYFORT_ACCESS_CODE=
-PAYFORT_SHA_REQUEST_PASSPHRASE=
-PAYFORT_SHA_RESPONSE_PASSPHRASE=
-PAYFORT_SHA_TYPE=sha256
-# merchant "apple"
+PAYFORT_SHA_REQUEST_PHRASE=
+PAYFORT_SHA_RESPONSE_PHRASE=
+# merchant: apple
 PAYFORT_APPLE_MERCHANT_IDENTIFIER=
 PAYFORT_APPLE_ACCESS_CODE=
-PAYFORT_APPLE_SHA_REQUEST_PASSPHRASE=
-PAYFORT_APPLE_SHA_RESPONSE_PASSPHRASE=
-PAYFORT_APPLE_SHA_TYPE=sha256
+PAYFORT_APPLE_SHA_REQUEST_PHRASE=
+PAYFORT_APPLE_SHA_RESPONSE_PHRASE=
 ```
 
 ## Usage
@@ -97,21 +136,31 @@ try {
     // handle
 }
 
-// also
- Payfort::merchant('default')->api()->capture();
- Payfort::merchant('default')->api()->checkStatus();
- Payfort::merchant('default')->api()->createToken();
- Payfort::merchant('default')->api()->recurring();
- Payfort::merchant('default')->api()->refund();
- Payfort::merchant('default')->api()->updateToken();
- Payfort::merchant('default')->api()->voidAuthorization();
+// api calls
+// merchant: apple
+ Payfort::merchant('apple')->api()->capture();
+ // merchant: default
+ Payfort::merchant()->api()->capture(); 
+ Payfort::merchant()->api()->checkStatus();
+ Payfort::merchant()->api()->createToken();
+ Payfort::merchant()->api()->recurring();
+ Payfort::merchant()->api()->refund();
+ Payfort::merchant()->api()->updateToken();
+ Payfort::merchant()->api()->voidAuthorization();
+
+// custom request using merchant credentials
+Payfort::merchant()->api()->request(options: ['json' => [
+    'query_command' => 'CHECK_STATUS',
+    'merchant_reference' => '5000900',
+]]); // PayfortResponse
 
 // custom request
-Payfort::http()->request('POST', '/FortAPI/paymentApi', []);
+Payfort::http()->request('POST', '/FortAPI/paymentApi', []); // PayfortResponse
 
 // signature
+$payload = []; // request data
 $signature = (new PayfortSignature(shaPhrase: '', shaType: 'sha256'))
-    ->calculateSignature([]);
+    ->calculateSignature($payload);
 
 ```
 

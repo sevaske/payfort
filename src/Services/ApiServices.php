@@ -27,6 +27,15 @@ class ApiServices
      * @throws PayfortRequestException
      * @throws PayfortResponseException
      */
+    public function request(string $method = 'POST', string $uri = '/FortAPI/paymentApi', array $options = []): PayfortResponse
+    {
+        return $this->buildRequest($method, $uri, $options)->make();
+    }
+
+    /**
+     * @throws PayfortRequestException
+     * @throws PayfortResponseException
+     */
     public function capture(int $amount, string $currency, array $extra = []): PayfortResponse
     {
         $this->makeServiceRequest(new CaptureServiceRequest($this->credentials), [
@@ -157,7 +166,7 @@ class ApiServices
     /**
      * @throws PayfortRequestException
      */
-    public function buildRequest(string $uri, string $method, array $options): PayfortRequest
+    public function buildRequest(string $method, string $uri, array $options): PayfortRequest
     {
         $request = app(PayfortRequest::class)
             ->setUri($uri)
@@ -180,7 +189,7 @@ class ApiServices
      */
     public function makeServiceRequest(ServiceRequestContract $service, array $data): PayfortResponse
     {
-        $request = $this->buildRequest($service->getUri(), $service->getMethod(), ['json' => [
+        $request = $this->buildRequest($service->getMethod(), $service->getUri(), ['json' => [
             ...$service->getPreparedRequestData(),
             ...$data,
         ]]);
