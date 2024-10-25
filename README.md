@@ -188,8 +188,8 @@ This package triggers events that allow developers to handle Payfort webhook dat
 
 Each event includes:
 - `merchant`: An instance of `PayfortMerchant` containing merchant-specific information.
-- `postData`: The `POST` data sent by Payfort in the webhook.
-- `queryData`: The query parameters provided in the webhook request URL.
+- `payload`: The `POST` data sent by Payfort in the webhook.
+- `query`: The query parameters provided in the webhook request URL.
 
 ### Setting up event listeners
 
@@ -212,8 +212,8 @@ class HandlePayfortFeedback
     {
         // Access event data
         $merchant = $event->merchant;
-        $postData = $event->postData;
-        $queryData = $event->queryData;
+        $postData = $event->payload;
+        $queryData = $event->query;
 
         // Custom logic for handling feedback webhook data
         // For example, logging data or updating the database
