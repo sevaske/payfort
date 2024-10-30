@@ -22,7 +22,7 @@ class PayfortWebhookSignature
         $merchantName = $request->route('merchant', 'default');
 
         // must have a signature
-        if (! $request->has('signature')) {
+        if (! $request->post('signature')) {
             throw (new PayfortSignatureException('Signature is missing.'))
                 ->withContext([
                     'uri' => $request->getUri(),
@@ -30,9 +30,10 @@ class PayfortWebhookSignature
                 ]);
         }
 
-        $requestSignature = $request->post('signature');
-        $payload = $request->except('signature');
         $merchant = Payfort::merchant($merchantName);
+        $requestSignature = $request->post('signature');
+        $payload = $request->post();
+        unset($payload['signature']);
 
         $calculatedSignature = (new PayfortSignature(
             $merchant->getCredentials()->getShaResponsePhrase(),
