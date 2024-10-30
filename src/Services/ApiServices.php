@@ -70,8 +70,8 @@ class ApiServices
      */
     public function createToken(
         string $merchantReference,
-        int $cardNumber,
-        int $expiryDate,
+        string $cardNumber,
+        string $expiryDate,
         string $returnUrl,
         array $extra = [],
     ): PayfortResponse {
