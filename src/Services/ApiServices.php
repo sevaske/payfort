@@ -38,7 +38,7 @@ class ApiServices
      */
     public function capture(int $amount, string $currency, array $extra = []): PayfortResponse
     {
-        $this->makeServiceRequest(new CaptureServiceRequest($this->credentials), [
+        return $this->makeServiceRequest(new CaptureServiceRequest($this->credentials), [
             'amount' => $amount,
             'currency' => $currency,
             ...$extra,

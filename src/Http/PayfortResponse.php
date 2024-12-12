@@ -3,10 +3,11 @@
 namespace Sevaske\Payfort\Http;
 
 use Psr\Http\Message\ResponseInterface;
+use Sevaske\Payfort\Contracts\ResponseContract;
 use Sevaske\Payfort\Credentials;
 use Sevaske\Payfort\Exceptions\PayfortResponseException;
 
-class PayfortResponse
+class PayfortResponse implements ResponseContract
 {
     private mixed $data = [];
 
