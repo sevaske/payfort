@@ -4,12 +4,17 @@ namespace Sevaske\Payfort\Http\Middlewares;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Sevaske\Payfort\Exceptions\PayfortSignatureException;
 use Sevaske\Payfort\Facades\Payfort;
 use Sevaske\Payfort\Http\PayfortSignature;
 
 class PayfortWebhookSignature
 {
+    protected array $payloadExcludedKeys = [
+        'signature',
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -20,36 +25,47 @@ class PayfortWebhookSignature
     public function handle(Request $request, Closure $next)
     {
         $merchantName = $request->route('merchant', 'default');
+        $merchant = Payfort::merchant($merchantName);
+        $payload = $this->getPayload($request);
 
         // must have a signature
-        if (! $request->post('signature')) {
+        if (! isset($payload['signature'])) {
             throw (new PayfortSignatureException('Signature is missing.'))
                 ->withContext([
                     'uri' => $request->getUri(),
                     'merchant' => $merchantName,
+                    'payload' => $payload,
                 ]);
         }
-
-        $merchant = Payfort::merchant($merchantName);
-        $requestSignature = $request->post('signature');
-        $payload = $request->post();
-        unset($payload['signature']);
 
         $calculatedSignature = (new PayfortSignature(
             $merchant->getCredentials()->getShaResponsePhrase(),
             $merchant->getCredentials()->getShaType()
-        ))->calculateSignature($payload);
+        ))->calculateSignature(Arr::except($payload, $this->payloadExcludedKeys));
 
-        if ($calculatedSignature !== $requestSignature) {
+        if ($calculatedSignature !== $payload['signature']) {
             throw (new PayfortSignatureException('Invalid signature in a webhook request.'))
                 ->withContext([
                     'uri' => $request->getUri(),
                     'merchant' => $merchant->getName(),
                     'calculated_signature' => $calculatedSignature,
-                    'request_signature' => $requestSignature,
+                    'payload' => $payload,
                 ]);
         }
 
         return $next($request);
+    }
+
+    protected function getPayload(Request $request): array
+    {
+        $rawContent = (string) $request->getContent();
+
+        if ($request->isJson()) {
+            return (array) json_decode($rawContent, true);
+        }
+
+        parse_str($rawContent, $payload);
+
+        return $payload;
     }
 }
