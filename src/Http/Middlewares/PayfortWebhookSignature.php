@@ -5,6 +5,8 @@ namespace Sevaske\Payfort\Http\Middlewares;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Sevaske\Payfort\Enums\PaymentApiResponseStatus;
+use Sevaske\Payfort\Exceptions\PayfortInvalidRequestException;
 use Sevaske\Payfort\Exceptions\PayfortSignatureException;
 use Sevaske\Payfort\Facades\Payfort;
 use Sevaske\Payfort\Http\PayfortSignature;
@@ -21,12 +23,24 @@ class PayfortWebhookSignature
      * @return mixed
      *
      * @throws PayfortSignatureException
+     * @throws PayfortInvalidRequestException
      */
     public function handle(Request $request, Closure $next)
     {
         $merchantName = $request->route('merchant', 'default');
         $merchant = Payfort::merchant($merchantName);
         $payload = $this->getPayload($request);
+        $status = $payload['status'] ?? null;
+
+        // a request with the "Invalid Request" status does not include a signature
+        if ($status === PaymentApiResponseStatus::InvalidRequest) {
+            throw (new PayfortInvalidRequestException('Payfort webhook. Invalid request.'))
+                ->withContext([
+                    'uri' => $request->getUri(),
+                    'merchant' => $merchant->getName(),
+                    'payload' => $payload,
+                ]);
+        }
 
         // must have a signature
         if (! isset($payload['signature'])) {
