@@ -39,7 +39,7 @@ class MerchantManager extends Manager
         } catch (Throwable $e) {
             // invalid
             throw new PayfortException(
-                message: "Credential for merchant [{$driver}] are invalid. {$e->getMessage()}"
+                message: "Credential for merchant [{$driver}] is invalid. {$e->getMessage()}"
             );
         }
 
