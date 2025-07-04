@@ -172,8 +172,8 @@ Payfort::merchant()->api()->request([
     'merchant_reference' => 'ORDER-123456',
 ]); // PayfortResponse
 
-// custom raw request (without validations and getting raw response)
-Payfort::merchant()->api()->rawRequest(['foo' => 'bar'], 'uri', 'POST'); // PayfortResponse
+// custom raw request (raw response with no validations)
+Payfort::merchant()->api()->rawRequest(['foo' => 'bar'], 'uri', 'POST'); // ResponseInterface
 
 // calculation signature
 $signature = (new Signature(shaPhrase: '', shaType: 'sha256'))->calculate(['foo' => 'bar']);
