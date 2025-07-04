@@ -2,7 +2,7 @@
 
 namespace Sevaske\Payfort;
 
-use Sevaske\Payfort\Enums\PayfortEnvironment;
+use Sevaske\PayfortApi\Enums\PayfortEnvironmentEnum;
 
 class Config
 {
@@ -29,13 +29,13 @@ class Config
     public static function getApiUrl(): string
     {
         if (self::isSandboxMode()) {
-            return PayfortEnvironment::Sandbox->getApiUrl();
+            return PayfortEnvironmentEnum::Sandbox->url();
         }
 
-        return PayfortEnvironment::Production->getApiUrl();
+        return PayfortEnvironmentEnum::Production->url();
     }
 
-    public static function getLogChannel(): string
+    public static function getLogChannel(): ?string
     {
         return config('payfort.log_channel');
     }

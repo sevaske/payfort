@@ -3,9 +3,10 @@
 namespace Sevaske\Payfort\Managers;
 
 use Illuminate\Support\Manager;
-use Sevaske\Payfort\Credentials;
-use Sevaske\Payfort\Exceptions\PayfortMerchantCredentialsException;
+use Sevaske\Payfort\Config;
 use Sevaske\Payfort\Merchant;
+use Sevaske\PayfortApi\Credential;
+use Sevaske\PayfortApi\Exceptions\PayfortException;
 use Throwable;
 
 class MerchantManager extends Manager
@@ -16,7 +17,7 @@ class MerchantManager extends Manager
     }
 
     /**
-     * @throws PayfortMerchantCredentialsException
+     * @throws PayfortException
      */
     public function createDriver($driver): Merchant
     {
@@ -24,24 +25,29 @@ class MerchantManager extends Manager
 
         if (! $config) {
             // not found
-            throw new PayfortMerchantCredentialsException("Credentials for merchant [{$driver}] not found.");
+            throw new PayfortException("Credential for merchant [{$driver}] not found.");
         }
 
         try {
-            $credentials = new Credentials(
+            $credential = new Credential(
                 merchantIdentifier: $config['merchant_identifier'],
-                accessToken: $config['access_code'],
+                accessCode: $config['access_code'],
                 shaRequestPhrase: $config['sha_request_phrase'],
                 shaResponsePhrase: $config['sha_response_phrase'],
-                shaType: $config['sha_type'] ?? 'sha256',
+                shaType: $config['sha_type'] ?: 'sha256',
             );
         } catch (Throwable $e) {
             // invalid
-            throw new PayfortMerchantCredentialsException(
-                message: "Credentials for merchant [{$driver}] are invalid. {$e->getMessage()}"
+            throw new PayfortException(
+                message: "Credential for merchant [{$driver}] are invalid. {$e->getMessage()}"
             );
         }
 
-        return new Merchant($driver, $credentials);
+        return new Merchant(
+            $driver,
+            Config::isSandboxMode() ? 'sandbox' : 'production',
+            app('payfort-http-client'),
+            $credential
+        );
     }
 }
