@@ -5,69 +5,64 @@ namespace Sevaske\Payfort\Http\Middlewares;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Sevaske\Payfort\Enums\PaymentApiResponseStatus;
-use Sevaske\Payfort\Exceptions\PayfortInvalidRequestException;
-use Sevaske\Payfort\Exceptions\PayfortSignatureException;
 use Sevaske\Payfort\Facades\Payfort;
-use Sevaske\Payfort\Http\PayfortSignature;
+use Sevaske\Payfort\Merchant;
+use Sevaske\PayfortApi\Enums\PayfortStatusEnum;
+use Sevaske\PayfortApi\Exceptions\PayfortRequestException;
+use Sevaske\PayfortApi\Exceptions\PayfortSignatureException;
+use Sevaske\PayfortApi\Signature;
 
 class PayfortWebhookSignature
 {
-    protected array $payloadExcludedKeys = [
-        'signature',
-    ];
-
     /**
      * Handle an incoming request.
      *
      * @return mixed
      *
      * @throws PayfortSignatureException
-     * @throws PayfortInvalidRequestException
+     * @throws PayfortRequestException
      */
     public function handle(Request $request, Closure $next)
     {
         $merchantName = $request->route('merchant', 'default');
         $merchant = Payfort::merchant($merchantName);
         $payload = $this->getPayload($request);
-        $status = $payload['status'] ?? null;
 
         // a request with the "Invalid Request" status does not include a signature
-        if ($status === PaymentApiResponseStatus::InvalidRequest) {
-            throw (new PayfortInvalidRequestException('Payfort webhook. Invalid request.'))
+        if (($payload['status'] ?? null) === PayfortStatusEnum::InvalidRequest->value) {
+            throw (new PayfortRequestException('Payfort webhook. Invalid request.', $payload))
                 ->withContext([
                     'uri' => $request->getUri(),
-                    'merchant' => $merchant->getName(),
-                    'payload' => $payload,
+                    'merchant' => $merchant->name(),
                 ]);
         }
 
-        // must have a signature
-        if (! isset($payload['signature'])) {
-            throw (new PayfortSignatureException('Signature is missing.'))
-                ->withContext([
-                    'uri' => $request->getUri(),
-                    'merchant' => $merchantName,
-                    'payload' => $payload,
-                ]);
-        }
-
-        $calculatedSignature = (new PayfortSignature(
-            $merchant->getCredentials()->getShaResponsePhrase(),
-            $merchant->getCredentials()->getShaType()
-        ))->calculateSignature(Arr::except($payload, $this->payloadExcludedKeys));
-
-        if ($calculatedSignature !== $payload['signature']) {
-            throw (new PayfortSignatureException('Invalid signature in a webhook request.'))
-                ->withContext([
-                    'uri' => $request->getUri(),
-                    'merchant' => $merchant->getName(),
-                    'calculated_signature' => $calculatedSignature,
-                    'payload' => $payload,
-                ]);
-        }
+        $this->verifySignature($payload, $merchant);
 
         return $next($request);
+    }
+
+    /**
+     * @throws PayfortSignatureException
+     */
+    protected function verifySignature(array $request, Merchant $merchant): void
+    {
+        $payload = Arr::except($request, ['signature']);
+        $calculatedSignature = (new Signature(
+            $merchant->credential()->shaResponsePhrase(),
+            $merchant->credential()->shaType(),
+        ))->calculate($payload);
+
+        if ($request['signature'] !== $calculatedSignature) {
+            throw (new PayfortSignatureException(
+                'Signature is missing.',
+                $payload,
+                $calculatedSignature,
+                $request['signature'],
+                $merchant->credential()->shaResponsePhrase(),
+                $merchant->credential()->shaType(),
+            ));
+        }
     }
 
     protected function getPayload(Request $request): array

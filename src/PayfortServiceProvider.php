@@ -3,8 +3,8 @@
 namespace Sevaske\Payfort;
 
 use Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature;
-use Sevaske\Payfort\Http\PayfortHttpClient;
 use Sevaske\Payfort\Managers\MerchantManager;
+use Sevaske\PayfortApi\Enums\PayfortEnvironmentEnum;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -21,9 +21,9 @@ class PayfortServiceProvider extends PackageServiceProvider
     public function registeringPackage(): void
     {
         // http client with a base_uri
-        $this->app->singleton(PayfortHttpClient::class, function () {
-            return new PayfortHttpClient([
-                'base_uri' => Config::getApiUrl(),
+        $this->app->singleton('payfort-http-client', function () {
+            return new \GuzzleHttp\Client([
+                'base_uri' => PayfortEnvironmentEnum::getUrl(Config::isSandboxMode() ? 'sandbox' : 'production'),
             ]);
         });
 
@@ -36,7 +36,7 @@ class PayfortServiceProvider extends PackageServiceProvider
         $this->app->singleton(Payfort::class, fn () => new Payfort);
     }
 
-    public function bootingPackage()
+    public function bootingPackage(): void
     {
         // middleware alias: payfort.webhook.signature
         $this->app['router']->aliasMiddleware('payfort.webhook.signature', PayfortWebhookSignature::class);

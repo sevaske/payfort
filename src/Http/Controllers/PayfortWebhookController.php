@@ -24,8 +24,9 @@ class PayfortWebhookController extends Controller implements WebhookControllerCo
 
     protected function handleRequest(Request $request, string $merchantName, string $eventClass): JsonResponse
     {
-        if (Config::isDebugMode()) {
-            Log::channel(Config::getLogChannel())->info('Payfort webhook received.', [
+        // todo check
+        if (Config::isDebugMode() && $logChannelName = Config::getLogChannel()) {
+            Log::channel($logChannelName)->info('Payfort webhook received.', [
                 'merchant' => $merchantName,
                 'request' => $request->all(),
                 'event' => $eventClass,

@@ -7,7 +7,7 @@ This Laravel plugin lets you work with the Payfort Payment API and manage multip
 
 # Beta version
 
-**Note**: This plugin is currently in beta. This means that while it is functional and ready for use, it may still have some bugs or incomplete features. We are actively working on improvements and welcome feedback to help us enhance the plugin.
+**Note**: This version is currently in beta. Use at your own risk.
 
 ## Requirements
 
@@ -35,8 +35,6 @@ return [
     'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', false),
     'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
     'log_channel' => env('PAYFORT_LOG_CHANNEL', env('LOG_CHANNEL', 'stack')),
-    'language' => env('PAYFORT_LANGUAGE', 'en'), // en|ar
-    'enable_requests_validation' => env('PAYFORT_ENABLE_REQUESTS_VALIDATION', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -105,6 +103,7 @@ Add the following lines to your `.env` file and set values:
 ```dotenv
 PAYFORT_SANDBOX_MODE=true
 PAYFORT_DEBUG_MODE=true
+PAYFORT_LOG_CHANNEL=stack
 # merchant: default
 PAYFORT_MERCHANT_IDENTIFIER=
 PAYFORT_ACCESS_CODE=
@@ -121,34 +120,45 @@ PAYFORT_APPLE_SHA_RESPONSE_PHRASE=
 
 You can add new merchants in config/payfort.php.
 
+```php
+use \Sevaske\Payfort\Payfort;
+
+// getting merchant
+$defaultMerchant = Payfort::merchant();
+$anotherMerchant = Payfort::merchant('apple');
+```
+
 ## Usage
 
 ```php
-use \Sevaske\Payfort\Exceptions\PayfortMerchantCredentialsException;
-use \Sevaske\Payfort\Exceptions\PayfortRequestException;
-use \Sevaske\Payfort\Exceptions\PayfortResponseException;
-use \Sevaske\Payfort\Http\PayfortSignature;
-use \Sevaske\Payfort\Http\PayfortResponse;
+use \Sevaske\PayfortApi\Signature;
+use \Sevaske\PayfortApi\Http\Response as PayfortResponse;
+use \Sevaske\PayfortApi\Http\Responses\CheckStatusResponse;
 use \Sevaske\Payfort\Payfort;
 
 try {
     $response = Payfort::merchant('default')
         ->api()
-        ->checkStatus(merchantReference: 'ORDER-123456') // PayfortResponse
-        ->getData(); // array
-} catch (PayfortMerchantCredentialsException $exception) {
-    // handle
-} catch (PayfortRequestException $exception) {
-    // handle
-} catch (PayfortResponseException $exception) {
+        ->checkStatus(merchantReference: 'ORDER-123456'); // CheckStatusResponse
+        
+    $response->jsonSerialize();    // Parsed response as array
+    $response->authorizedAmount(); // ?string
+    $response->capturedAmount();   // ?string
+    $response->refundedAmount();   // ?string
+} catch (\Sevaske\PayfortApi\Exceptions\PayfortException $exception) {
     // handle
 }
 
+// using callback
+$response = $merchant->api()->checkStatus('12345', callback: function (
+    CheckStatusResponse $response,
+    array $request
+) {
+    // ... 
+    return $response;
+});
+
 // api calls
-// merchant: apple
- Payfort::merchant('apple')->api()->capture();
- // merchant: default
- Payfort::merchant()->api()->capture(); 
  Payfort::merchant()->api()->checkStatus();
  Payfort::merchant()->api()->createToken();
  Payfort::merchant()->api()->recurring();
@@ -156,20 +166,17 @@ try {
  Payfort::merchant()->api()->updateToken();
  Payfort::merchant()->api()->voidAuthorization();
 
-// custom request using merchant credentials
-Payfort::merchant()->api()->request(options: ['json' => [
+// custom request
+Payfort::merchant()->api()->request([
     'query_command' => 'CHECK_STATUS',
     'merchant_reference' => 'ORDER-123456',
-]]); // PayfortResponse
+]); // PayfortResponse
 
-// custom request
-Payfort::http()->request('POST', '/FortAPI/paymentApi', []); // PayfortResponse
+// custom raw request (raw response with no validations)
+Payfort::merchant()->api()->rawRequest(['foo' => 'bar'], 'uri', 'POST'); // ResponseInterface
 
-// signature
-$payload = []; // request data
-$signature = (new PayfortSignature(shaPhrase: '', shaType: 'sha256'))
-    ->calculateSignature($payload);
-
+// calculation signature
+$signature = (new Signature(shaPhrase: '', shaType: 'sha256'))->calculate(['foo' => 'bar']);
 ```
 
 ## Webhook events
@@ -253,6 +260,10 @@ class EventServiceProvider extends ServiceProvider
 ## Debug mode
 
 Enables debug mode for logging detailed request/response information. You can set the "log_channel".
+
+## Contribution
+
+You are welcome to contribute or use https://github.com/sevaske/payfort-api to work with the API directly.
 
 ## What to expect
 

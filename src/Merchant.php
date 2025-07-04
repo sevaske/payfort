@@ -2,32 +2,31 @@
 
 namespace Sevaske\Payfort;
 
-use Sevaske\Payfort\Contracts\CredentialsContract;
-use Sevaske\Payfort\Contracts\HasCredentials;
-use Sevaske\Payfort\Services\ApiServices;
+use Psr\Http\Client\ClientInterface;
+use Sevaske\PayfortApi\Enums\PayfortEnvironmentEnum;
+use Sevaske\PayfortApi\Interfaces\CredentialInterface;
+use Sevaske\PayfortApi\Merchant as PayfortMerchant;
 
-class Merchant implements HasCredentials
+class Merchant extends PayfortMerchant
 {
-    private ?ApiServices $api = null;
+    /**
+     * Initialize the API request with an HTTP client and credentials.
+     *
+     * @param  PayfortEnvironmentEnum|string  $environment  The environment to make requests (production|sandbox).
+     * @param  ClientInterface  $httpClient  The HTTP client for sending requests.
+     * @param  CredentialInterface  $credential  The credential instance for authentication and signing requests.
+     */
+    public function __construct(
+        protected string $name,
+        PayfortEnvironmentEnum|string $environment,
+        ClientInterface $httpClient,
+        CredentialInterface $credential,
+    ) {
+        parent::__construct($environment, $httpClient, $credential);
+    }
 
-    public function __construct(protected string $name, protected CredentialsContract $credentials) {}
-
-    public function getName(): string
+    public function name(): string
     {
         return $this->name;
-    }
-
-    public function getCredentials(): CredentialsContract
-    {
-        return $this->credentials;
-    }
-
-    public function api(): ApiServices
-    {
-        if ($this->api === null) {
-            $this->api = new ApiServices($this->credentials);
-        }
-
-        return $this->api;
     }
 }
