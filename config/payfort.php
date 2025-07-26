@@ -1,9 +1,8 @@
 <?php
 
 return [
-    'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', false),
-    'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
-    'log_channel' => env('PAYFORT_LOG_CHANNEL', env('LOG_CHANNEL', 'stack')),
+    // environment: sandbox or production
+    'env' => env('PAYFORT_SANDBOX_MODE', true) ? 'sandbox' : 'production',
 
     /*
     |--------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 namespace Sevaske\Payfort\Managers;
 
 use Illuminate\Support\Manager;
-use Sevaske\Payfort\Config;
 use Sevaske\Payfort\Merchant;
 use Sevaske\PayfortApi\Credential;
 use Sevaske\PayfortApi\Exceptions\PayfortException;
@@ -39,13 +38,16 @@ class MerchantManager extends Manager
         } catch (Throwable $e) {
             // invalid
             throw new PayfortException(
-                message: "Credential for merchant [{$driver}] is invalid. {$e->getMessage()}"
+                message: "Credential for merchant [{$driver}] is invalid. {$e->getMessage()}",
+                context: [
+                    'config' => $config,
+                ],
             );
         }
 
         return new Merchant(
             $driver,
-            Config::isSandboxMode() ? 'sandbox' : 'production',
+            config('payfort.env'),
             app('payfort-http-client'),
             $credential
         );
