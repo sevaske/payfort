@@ -55,7 +55,7 @@ class PayfortWebhookSignature
 
         if ($request['signature'] !== $calculatedSignature) {
             throw (new PayfortSignatureException(
-                'Signature is missing.',
+                'Signature is missing or invalid.',
                 $payload,
                 $calculatedSignature,
                 $request['signature'],
