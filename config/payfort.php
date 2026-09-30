@@ -1,5 +1,8 @@
 <?php
 
+use Sevaske\Payfort\Http\Controllers\PayfortWebhookController;
+use Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature;
+
 return [
     'sandbox_mode' => env('PAYFORT_SANDBOX_MODE', false),
     'debug_mode' => env('PAYFORT_DEBUG_MODE', false),
@@ -49,19 +52,19 @@ return [
     |
     */
     'webhook' => [
-        'controller' => Sevaske\Payfort\Http\Controllers\PayfortWebhookController::class,
+        'controller' => PayfortWebhookController::class,
         'feedback' => [
             'enabled' => env('PAYFORT_WEBHOOK_FEEDBACK_ENABLED', true),
             'uri' => env('PAYFORT_WEBHOOK_FEEDBACK_URI', '/payfort/webhook/feedback/{merchant?}'),
             'middlewares' => [
-                \Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature::class,
+                PayfortWebhookSignature::class,
             ],
         ],
         'notification' => [
             'enabled' => env('PAYFORT_WEBHOOK_NOTIFICATION_ENABLED', true),
             'uri' => env('PAYFORT_WEBHOOK_NOTIFICATION_URI', '/payfort/webhook/notification/{merchant?}'),
             'middlewares' => [
-                \Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature::class,
+                PayfortWebhookSignature::class,
             ],
         ],
     ],

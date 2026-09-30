@@ -2,6 +2,7 @@
 
 namespace Sevaske\Payfort;
 
+use GuzzleHttp\Client;
 use Sevaske\Payfort\Http\Middlewares\PayfortWebhookSignature;
 use Sevaske\Payfort\Managers\MerchantManager;
 use Sevaske\PayfortApi\Enums\PayfortEnvironmentEnum;
@@ -22,7 +23,7 @@ class PayfortServiceProvider extends PackageServiceProvider
     {
         // http client with a base_uri
         $this->app->singleton('payfort-http-client', function () {
-            return new \GuzzleHttp\Client([
+            return new Client([
                 'base_uri' => PayfortEnvironmentEnum::getUrl(Config::isSandboxMode() ? 'sandbox' : 'production'),
             ]);
         });

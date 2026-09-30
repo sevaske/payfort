@@ -1,15 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Sevaske\Payfort\Config;
 
-if (\Sevaske\Payfort\Config::isWebhookFeedbackEnabled()) {
-    Route::post(\Sevaske\Payfort\Config::getWebhookFeedbackUri(), [\Sevaske\Payfort\Config::getWebhookController(), 'feedback'])
-        ->middleware(\Sevaske\Payfort\Config::getWebhookFeedbackMiddlewares())
+if (Config::isWebhookFeedbackEnabled()) {
+    Route::post(Config::getWebhookFeedbackUri(), [Config::getWebhookController(), 'feedback'])
+        ->middleware(Config::getWebhookFeedbackMiddlewares())
         ->name('payfort.webhook.feedback');
 }
 
-if (\Sevaske\Payfort\Config::isWebhookNotificationEnabled()) {
-    Route::post(\Sevaske\Payfort\Config::getWebhookNotificationUri(), [\Sevaske\Payfort\Config::getWebhookController(), 'notification'])
-        ->middleware(\Sevaske\Payfort\Config::getWebhookNotificationMiddlewares())
+if (Config::isWebhookNotificationEnabled()) {
+    Route::post(Config::getWebhookNotificationUri(), [Config::getWebhookController(), 'notification'])
+        ->middleware(Config::getWebhookNotificationMiddlewares())
         ->name('payfort.webhook.notification');
 }
