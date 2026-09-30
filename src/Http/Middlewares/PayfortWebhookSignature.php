@@ -48,17 +48,18 @@ class PayfortWebhookSignature
     protected function verifySignature(array $request, Merchant $merchant): void
     {
         $payload = Arr::except($request, ['signature']);
+        $signature = $request['signature'] ?? null;
         $calculatedSignature = (new Signature(
             $merchant->credential()->shaResponsePhrase(),
             $merchant->credential()->shaType(),
         ))->calculate($payload);
 
-        if ($request['signature'] !== $calculatedSignature) {
+        if ($signature !== $calculatedSignature) {
             throw (new PayfortSignatureException(
                 'Signature is missing or invalid.',
                 $payload,
                 $calculatedSignature,
-                $request['signature'],
+                $signature,
                 $merchant->credential()->shaResponsePhrase(),
                 $merchant->credential()->shaType(),
             ));
